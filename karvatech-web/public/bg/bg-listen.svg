@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" fill="none">
+  <rect width="1440" height="900" fill="#fff"/>
+
+  <g stroke="#16a34a" stroke-width="1.4" fill="none" opacity="0.5">
+    <circle cx="930" cy="470" r="90"/>
+    <circle cx="930" cy="470" r="160"/>
+    <circle cx="930" cy="470" r="240"/>
+    <circle cx="930" cy="470" r="330"/>
+  </g>
+  <g fill="#16a34a" opacity="0.85">
+    <circle cx="930" cy="470" r="9"/>
+  </g>
+  <path d="M930 560 A90 90 0 0 0 960 550 M930 630 A160 160 0 0 0 1020 580 M930 710 A240 240 0 0 0 1090 630" fill="none" stroke="#16a34a" stroke-width="2" opacity="0.6"/>
+
+  <g fill="#dc2626" opacity="0.35">
+    <rect x="300" y="180" width="14" height="90"/><rect x="328" y="150" width="14" height="120"/>
+    <rect x="356" y="210" width="14" height="60"/><rect x="384" y="130" width="14" height="140"/>
+    <rect x="412" y="190" width="14" height="80"/>
+  </g>
+  <g fill="#16a34a" opacity="0.35">
+    <rect x="300" y="620" width="14" height="60"/><rect x="328" y="590" width="14" height="90"/>
+    <rect x="356" y="640" width="14" height="40"/><rect x="384" y="600" width="14" height="80"/>
+  </g>
+
+  <path d="M120 300 Q 260 460 120 620" fill="none" stroke="#dc2626" stroke-width="2" stroke-dasharray="1 12" stroke-linecap="round" opacity="0.5"/>
+  <path d="M1320 250 Q 1400 450 1320 650" fill="none" stroke="#16a34a" stroke-width="2" stroke-dasharray="1 12" stroke-linecap="round" opacity="0.5"/>
+
+  <text x="1330" y="760" font-family="ui-sans-serif, system-ui" font-size="300" font-weight="800" fill="#0b0f14" opacity="0.045">E</text>
+  <text x="150" y="100" font-family="ui-monospace, monospace" font-size="40" font-weight="700" fill="#0b0f14" opacity="0.05">::ONDA::</text>
+</svg>

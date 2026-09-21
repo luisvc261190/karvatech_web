@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" fill="none">
+  <defs>
+    <pattern id="grid" width="52" height="52" patternUnits="userSpaceOnUse">
+      <path d="M52 0 H0 V52" fill="none" stroke="#0b0f14" stroke-width="1" opacity="0.06"/>
+    </pattern>
+  </defs>
+  <rect width="1440" height="900" fill="#fff"/>
+  <rect width="1440" height="900" fill="url(#grid)"/>
+
+  <g stroke="#16a34a" stroke-width="2.2" fill="none" opacity="0.6">
+    <rect x="150" y="300" width="300" height="210" rx="14"/>
+    <rect x="590" y="190" width="320" height="250" rx="14"/>
+    <rect x="1050" y="420" width="280" height="230" rx="14"/>
+  </g>
+  <g stroke="#dc2626" stroke-width="1.8" opacity="0.6">
+    <path d="M170 380 L250 380 M170 420 L280 420 M610 280 L720 280 M610 320 L680 320 M1070 520 L1160 520"/>
+  </g>
+  <g fill="#16a34a" opacity="0.8">
+    <circle cx="300" cy="255" r="8"/><circle cx="475" cy="300" r="8"/><circle cx="660" cy="405" r="8"/>
+    <circle cx="890" cy="190" r="8"/><circle cx="1050" cy="368" r="8"/><circle cx="1330" cy="420" r="8"/>
+  </g>
+  <g stroke="#16a34a" stroke-width="2" opacity="0.55">
+    <path d="M590 500 L640 440 L690 480 L760 340 L830 405 L900 300" stroke-dasharray="1 8"/>
+  </g>
+  <path d="M180 660 h1080" stroke="#0b0f14" stroke-width="2" stroke-dasharray="6 10" opacity="0.14"/>
+  <circle cx="180" cy="660" r="7" fill="#dc2626" opacity="0.7"/>
+  <circle cx="1260" cy="660" r="7" fill="#16a34a" opacity="0.7"/>
+
+  <text x="90" y="120" font-family="ui-sans-serif, system-ui" font-size="170" font-weight="800" fill="#0b0f14" opacity="0.05">3</text>
+  <text x="1260" y="855" font-family="ui-monospace, monospace" font-size="38" font-weight="700" fill="#16a34a" opacity="0.09">DIAGRAMA++</text>
+</svg>

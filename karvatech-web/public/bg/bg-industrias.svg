@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" fill="none">
+  <defs>
+    <pattern id="grid" width="52" height="52" patternUnits="userSpaceOnUse">
+      <path d="M52 0 H0 V52" fill="none" stroke="#0b0f14" stroke-width="1" opacity="0.06"/>
+    </pattern>
+  </defs>
+  <rect width="1440" height="900" fill="#fff"/>
+  <rect width="1440" height="900" fill="url(#grid)"/>
+
+  <g stroke="#16a34a" stroke-width="2.2" fill="none" opacity="0.6">
+    <rect x="140" y="240" width="220" height="220" rx="14"/>
+    <rect x="520" y="330" width="260" height="170" rx="14"/>
+    <rect x="980" y="210" width="240" height="240" rx="14"/>
+    <rect x="700" y="560" width="260" height="150" rx="14"/>
+  </g>
+  <g stroke="#dc2626" stroke-width="1.8" opacity="0.6">
+    <path d="M165 320 L270 320 M165 360 L245 360 M550 400 L690 400 M550 440 L640 440 M1005 320 L1110 320 M725 620 L850 620"/>
+  </g>
+  <g fill="#16a34a" opacity="0.8">
+    <circle cx="250" cy="200" r="8"/><circle cx="140" cy="520" r="8"/><circle cx="520" cy="290" r="8"/>
+    <circle cx="780" cy="300" r="8"/><circle cx="980" cy="160" r="8"/><circle cx="1220" cy="210" r="8"/>
+  </g>
+  <g stroke="#16a34a" stroke-width="2" opacity="0.55" fill="none">
+    <path d="M360 380 L400 420 L440 380 L520 400 M820 470 L900 430 L960 460 L980 440 L1080 410" stroke-dasharray="1 8"/>
+  </g>
+  <path d="M180 700 h1080" stroke="#0b0f14" stroke-width="2" stroke-dasharray="6 10" opacity="0.14"/>
+  <circle cx="180" cy="700" r="7" fill="#dc2626" opacity="0.7"/>
+  <circle cx="1260" cy="700" r="7" fill="#16a34a" opacity="0.7"/>
+
+  <text x="90" y="120" font-family="ui-sans-serif, system-ui" font-size="170" font-weight="800" fill="#0b0f14" opacity="0.05">3</text>
+  <text x="1180" y="870" font-family="ui-monospace, monospace" font-size="38" font-weight="700" fill="#16a34a" opacity="0.09">SECTORES++</text>
+</svg>

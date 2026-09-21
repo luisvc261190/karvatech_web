@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" fill="none">
+  <rect width="1440" height="900" fill="#fff"/>
+  <g stroke="#0b0f14" stroke-width="1" opacity="0.07" fill="none">
+    <path d="M0 150 H1440 M0 300 H1440 M0 450 H1440 M0 600 H1440 M0 750 H1440"/>
+    <path d="M160 0 V900 M340 0 V900 M520 0 V900 M700 0 V900 M880 0 V900 M1060 0 V900 M1240 0 V900"/>
+  </g>
+
+  <path d="M120 640 C 360 340, 700 800, 1040 420 S 1380 180, 1380 180" fill="none" stroke="#16a34a" stroke-width="3" stroke-dasharray="2 14" stroke-linecap="round" opacity="0.7"/>
+  <g stroke="#16a34a" stroke-width="1.2" opacity="0.55">
+    <path d="M240 300 L500 380 L760 220 L1010 380 L1220 250"/>
+  </g>
+  <g fill="#16a34a" opacity="0.8">
+    <rect x="120" y="632" width="16" height="16" transform="rotate(45 128 640)"/>
+    <rect x="1030" y="412" width="16" height="16" transform="rotate(45 1038 420)"/>
+    <rect x="1380" y="172" width="16" height="16" transform="rotate(45 1388 180)"/>
+  </g>
+  <g fill="#dc2626" opacity="0.7">
+    <circle cx="620" cy="720" r="7"/><circle cx="920" cy="260" r="7"/>
+  </g>
+
+  <text x="120" y="150" font-family="ui-sans-serif, system-ui" font-size="30" font-weight="800" fill="#0b0f14" opacity="0.06">01</text>
+  <text x="760" y="80" font-family="ui-sans-serif, system-ui" font-size="30" font-weight="800" fill="#0b0f14" opacity="0.06">02</text>
+  <text x="1290" y="90" font-family="ui-sans-serif, system-ui" font-size="30" font-weight="800" fill="#0b0f14" opacity="0.06">03</text>
+  <text x="60" y="830" font-family="ui-monospace, monospace" font-size="44" font-weight="700" fill="#0b0f14" opacity="0.05">/RUTAS</text>
+</svg>
