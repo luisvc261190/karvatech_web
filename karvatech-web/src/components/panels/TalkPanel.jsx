@@ -358,9 +358,6 @@ export default function TalkPanel() {
 
       <footer className="ix-talk-foot">
         <span>© {new Date().getFullYear()} KARVATECH S.A.C. — Todos los derechos reservados.</span>
-        <span>
-          Hecho en el Perú por <b>Luis Valle</b> & <b>Karla Albites</b>
-        </span>
       </footer>
 
       <ScheduleModal

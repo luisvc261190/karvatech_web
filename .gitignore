@@ -3,4 +3,8 @@ dist/
 venv/
 __pycache__/
 *.pyc
-backend/messages/*.txt
+backend/credentials.txt
+backend/.jwt-secret
+backend/karvatech.db
+backend/static/uploads/
+backend/logs/

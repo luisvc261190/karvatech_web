@@ -7,8 +7,9 @@ export const PANELS = [
   { id: 'industrias', num: '03', nav: 'Industrias', label: 'Industrias' },
   { id: 'como-trabajamos', num: '04', nav: 'Cómo trabajamos', label: 'Proceso' },
   { id: 'nuestro-trabajo', num: '05', nav: 'Nuestro trabajo', label: 'Clientes' },
-  { id: 'nosotros', num: '06', nav: 'Nosotros', label: 'Equipo' },
-  { id: 'hablemos', num: '07', nav: 'Hablemos', label: 'Contacto' },
+  { id: 'proyectos', num: '06', nav: 'Proyectos', label: 'Casos' },
+  { id: 'nosotros', num: '07', nav: 'Nosotros', label: 'Equipo' },
+  { id: 'hablemos', num: '08', nav: 'Hablemos', label: 'Contacto' },
 ]
 
 export const TALK_INDEX = PANELS.findIndex((p) => p.id === 'hablemos')
