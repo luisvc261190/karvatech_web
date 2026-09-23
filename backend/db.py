@@ -69,6 +69,7 @@ class Admin(Base):
 
     id = Column(Integer, primary_key=True)
     username = Column(String(64), unique=True, nullable=False)
+    display_name = Column(String(120), nullable=False, default="")
     password_hash = Column(String(255), nullable=False)
     is_active = Column(Boolean, default=True, nullable=False)
     created_at = Column(DateTime(timezone=True), default=DATE_FACTORY)
@@ -127,6 +128,7 @@ class Project(Base):
 
 def init_db() -> None:
     _create_admins_table()
+    _ensure_admin_name_column()
     _seed_admin()
     _ensure_indexes()
     _seed_projects()
@@ -141,6 +143,7 @@ def _create_admins_table() -> None:
                 CREATE TABLE IF NOT EXISTS admins (
                     id SERIAL PRIMARY KEY,
                     username VARCHAR(64) UNIQUE NOT NULL,
+                    display_name VARCHAR(120) NOT NULL DEFAULT '',
                     password_hash VARCHAR(255) NOT NULL,
                     is_active BOOLEAN NOT NULL DEFAULT TRUE,
                     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
@@ -148,6 +151,29 @@ def _create_admins_table() -> None:
                 """
             )
         )
+
+
+def _ensure_admin_name_column() -> None:
+    """Añade display_name a tablas admins creadas antes de existir la columna.
+
+    Es idempotente (ADD COLUMN IF NOT EXISTS). Después rellena la cuenta activa
+    con el nombre de KARVATECH_ADMIN_NAME o, en su defecto, el nombre de usuario,
+    para que el panel siempre tenga un nombre legible.
+    """
+    with engine.begin() as conn:
+        conn.execute(
+            sa_text(
+                "ALTER TABLE admins ADD COLUMN IF NOT EXISTS "
+                "display_name VARCHAR(120) NOT NULL DEFAULT ''"
+            )
+        )
+
+    display = os.getenv("KARVATECH_ADMIN_NAME", "").strip()
+    with SessionLocal() as db:
+        row = db.query(Admin).filter_by(is_active=True).order_by(Admin.id).first()
+        if row and not (row.display_name or "").strip():
+            row.display_name = display or row.username
+            db.commit()
 
 
 # ---------------------------------------------------------------------------
@@ -168,13 +194,14 @@ def _seed_admin() -> None:
             return
 
         username = os.getenv("KARVATECH_ADMIN_USER", "admin")
+        display = os.getenv("KARVATECH_ADMIN_NAME", "").strip() or username
         password = os.getenv("KARVATECH_ADMIN_PASSWORD", "")
         generated = False
         if not password:
             password = secrets.token_urlsafe(16)
             generated = True
 
-        db.add(Admin(username=username, password_hash=hash_password(password)))
+        db.add(Admin(username=username, display_name=display, password_hash=hash_password(password)))
         db.commit()
 
         creds = BASE_DIR / "credentials.txt"

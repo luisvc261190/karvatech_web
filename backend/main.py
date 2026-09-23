@@ -223,6 +223,14 @@ def _set_session_cookie(request: Request, response: JSONResponse, user: object) 
     )
 
 
+def _admin_payload(admin: Admin) -> dict:
+    return {
+        "id": admin.id,
+        "username": admin.username,
+        "name": (admin.display_name or "").strip() or admin.username,
+    }
+
+
 @app.post("/api/admin/login")
 def admin_login(payload: LoginIn, request: Request) -> JSONResponse:
     ip = request.client.host if request.client else "desconocido"
@@ -239,7 +247,7 @@ def admin_login(payload: LoginIn, request: Request) -> JSONResponse:
 
     security.register_attempt(ip, ok=True)
     _logger.info("Login exitoso usuario=%s ip=%s", user.username, ip)
-    response = JSONResponse({"user": {"id": user.id, "username": user.username}})
+    response = JSONResponse({"user": _admin_payload(user)})
     _set_session_cookie(request, response, user)
     return response
 
@@ -254,7 +262,45 @@ def admin_logout(request: Request) -> JSONResponse:
 
 @app.get("/api/admin/me")
 def admin_me(user: Admin = Depends(security.get_current_user)) -> dict:
-    return {"user": {"id": user.id, "username": user.username}}
+    return {"user": _admin_payload(user)}
+
+
+@app.get("/api/admin/summary", dependencies=[Depends(security.get_current_user)])
+def admin_summary() -> dict:
+    """Resumen ejecutivo del panel: métricas, destacados y últimos mensajes."""
+    with SessionLocal() as db:
+        projects_total = db.query(Project).count()
+        projects_portfolio = db.query(Project).filter(Project.status != "borrador").count()
+
+        status_counts: dict[str, int] = {"nuevo": 0, "contactado": 0, "cerrado": 0}
+        for status, amount in (
+            db.query(Message.status, func.count(Message.id)).group_by(Message.status).all()
+        ):
+            if status in status_counts:
+                status_counts[status] = amount
+        messages_replied = db.query(Message).filter(Message.reply_sent_at.isnot(None)).count()
+
+        featured = (
+            db.query(Project)
+            .filter(Project.featured.is_(True), Project.status != "borrador")
+            .order_by(Project.sort_order.asc(), Project.id.desc())
+            .limit(6)
+            .all()
+        )
+        recent = (
+            db.query(Message)
+            .order_by(Message.created_at.desc(), Message.id.desc())
+            .limit(6)
+            .all()
+        )
+        return {
+            "projectsTotal": projects_total,
+            "projectsPortfolio": projects_portfolio,
+            "messagesNew": status_counts["nuevo"],
+            "messagesReplied": messages_replied,
+            "featured": [to_project_row(p) for p in featured],
+            "recent": [to_message_row(m) for m in recent],
+        }
 
 
 @app.get("/api/admin/csrf")

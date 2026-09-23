@@ -5,7 +5,9 @@ import {
   Inbox,
   Loader2,
   Mail,
+  MailOpen,
   NotebookPen,
+  RefreshCw,
   Send,
   Trash2,
   User,
@@ -21,9 +23,19 @@ const STATUS_CFG = {
 const FILTERS = [
   { key: 'todos', label: 'Todos' },
   { key: 'nuevo', label: 'Nuevos' },
-  { key: 'contactado', label: 'Contactados' },
-  { key: 'cerrado', label: 'Cerrados' },
+  { key: 'contactado', label: 'Respondidos' },
+  { key: 'cerrado', label: 'Archivados' },
 ]
+
+function fullName(m) {
+  return [m.name, m.lastName].filter(Boolean).join(' ')
+}
+
+function initials(value) {
+  const parts = (value || '').trim().split(/\s+/).filter(Boolean)
+  const text = parts.length >= 2 ? parts[0][0] + parts[1][0] : (value || '?').slice(0, 1)
+  return (text || '?').toUpperCase()
+}
 
 function fmtDate(iso) {
   if (!iso) return ''
@@ -37,7 +49,40 @@ function fmtDate(iso) {
   })
 }
 
-function MessageCard({ m, busy, onRemove, onSave, onSend }) {
+function fmtRowDate(iso) {
+  if (!iso) return ''
+  const d = new Date(iso)
+  return d.toLocaleDateString('es-PE', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  })
+}
+
+function MessageRow({ m, active, onClick }) {
+  const cfg = STATUS_CFG[m.status] || STATUS_CFG.nuevo
+  const name = fullName(m) || 'Cliente'
+  return (
+    <button className={`kt-msg-row ${active ? 'active' : ''}`} onClick={onClick}>
+      <span className="kt-round">{initials(m.name)}</span>
+      <div className="kt-msg-row-copy">
+        <div className="kt-msg-row-top">
+          <strong>{name.toUpperCase()}</strong>
+          <time>{fmtRowDate(m.createdAt)}</time>
+        </div>
+        <span className="kt-msg-row-mail">{m.email}</span>
+        <div className="kt-msg-row-foot">
+          <span className="kt-msg-row-sector">
+            {[m.sector, m.company].filter(Boolean).join(' · ') || 'Sin datos'}
+          </span>
+          <span className={`kt-badge ${cfg.cls}`}>{cfg.label}</span>
+        </div>
+      </div>
+    </button>
+  )
+}
+
+function MessageReader({ m, busy, onRemove, onSave, onSend }) {
   const [reply, setReply] = useState(m.replyBody || '')
   const [notes, setNotes] = useState(m.adminNotes || '')
   const [status, setStatus] = useState(m.status)
@@ -51,7 +96,7 @@ function MessageCard({ m, busy, onRemove, onSave, onSend }) {
   }
 
   const cfg = STATUS_CFG[m.status] || STATUS_CFG.nuevo
-  const fullName = [m.name, m.lastName].filter(Boolean).join(' ')
+  const name = fullName(m) || 'Sin nombre'
   const first = m.name || 'Cliente'
 
   const mailtoHref = [
@@ -72,7 +117,6 @@ function MessageCard({ m, busy, onRemove, onSave, onSend }) {
     setSendError('')
     try {
       await onSend(reply)
-      savedNotice('Respuesta enviada y guardada')
     } catch (err) {
       setSendError(err.message || 'No se pudo enviar. Usa “Abrir en tu correo”.')
     } finally {
@@ -81,18 +125,51 @@ function MessageCard({ m, busy, onRemove, onSave, onSend }) {
   }
 
   return (
-    <article className="kt-msg">
-      <div className="kt-msg-head">
-        <span className={`kt-badge ${cfg.cls}`}>{cfg.label}</span>
-        <span className="kt-msg-who">{fullName || 'Sin nombre'}</span>
-        <span className="kt-msg-date">{fmtDate(m.createdAt)}</span>
-      </div>
+    <article className="kt-reader">
+      <header className="kt-reader-head">
+        <div className="kt-reader-title">
+          <span className={`kt-badge ${cfg.cls}`}>{cfg.label}</span>
+          <h3>{name}</h3>
+          <time>{fmtDate(m.createdAt)}</time>
+        </div>
+        <div className="kt-reader-actions">
+          <label className="kt-select">
+            <span>Estado</span>
+            <select
+              value={status}
+              disabled={busy}
+              onChange={(e) => {
+                setStatus(e.target.value)
+                onSave({ status: e.target.value })
+              }}
+            >
+              <option value="nuevo">Nuevo</option>
+              <option value="contactado">Contactado</option>
+              <option value="cerrado">Cerrado</option>
+            </select>
+          </label>
+          <button
+            className="kt-btn kt-btn-ghost-red"
+            disabled={busy}
+            onClick={() => onRemove(m.id)}
+          >
+            <Trash2 size={15} />
+            Eliminar
+          </button>
+        </div>
+      </header>
 
       <div className="kt-msg-meta">
         {m.email && (
           <span>
             <Mail size={13} />
             <a href={`mailto:${m.email}`}>{m.email}</a>
+          </span>
+        )}
+        {m.phone && (
+          <span>
+            <User size={13} />
+            {m.phone}
           </span>
         )}
         {m.company && (
@@ -111,32 +188,6 @@ function MessageCard({ m, busy, onRemove, onSave, onSend }) {
 
       <p className="kt-msg-pain">{m.pain}</p>
 
-      <div className="kt-msg-actions">
-        <label className="kt-select">
-          <span>Estado</span>
-          <select
-            value={status}
-            disabled={busy}
-            onChange={(e) => {
-              setStatus(e.target.value)
-              onSave({ status: e.target.value })
-            }}
-          >
-            <option value="nuevo">Nuevo</option>
-            <option value="contactado">Contactado</option>
-            <option value="cerrado">Cerrado</option>
-          </select>
-        </label>
-        <button
-          className="kt-btn kt-btn-ghost-red"
-          disabled={busy}
-          onClick={() => onRemove(m.id)}
-        >
-          <Trash2 size={15} />
-          Eliminar
-        </button>
-      </div>
-
       <div className="kt-msg-notes">
         <label className="kt-field">
           <span>
@@ -144,7 +195,7 @@ function MessageCard({ m, busy, onRemove, onSave, onSend }) {
             Respuesta al cliente
           </span>
           <textarea
-            rows={3}
+            rows={5}
             value={reply}
             onChange={(e) => setReply(e.target.value)}
             placeholder="Redacta la respuesta que enviarás a este cliente…"
@@ -186,7 +237,7 @@ function MessageCard({ m, busy, onRemove, onSave, onSend }) {
             Notas internas
           </span>
           <textarea
-            rows={3}
+            rows={5}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Notas solo para tu equipo…"
@@ -220,17 +271,26 @@ export default function MessagesView() {
   const [moreError, setMoreError] = useState('')
   const [filter, setFilter] = useState('todos')
   const [busy, setBusy] = useState(false)
+  const [selectedId, setSelectedId] = useState(null)
+  const [sent, setSent] = useState(null)
 
   const hasMore = total > items.length
+  const selected = items.find((i) => i.id === selectedId) || null
 
-  const fetchPage = (reset, statusFilter, offset) => {
+  useEffect(() => {
+    if (selectedId != null && !items.some((i) => i.id === selectedId)) {
+      setSelectedId(null)
+    }
+  }, [items, selectedId])
+
+  const fetchPage = (reset, statusFilter, offset, silent = false) => {
     const status = statusFilter && statusFilter !== 'todos' ? statusFilter : ''
     const params = new URLSearchParams({ limit: String(PAGE) })
     if (!reset) params.set('offset', String(offset))
     if (status) params.set('status', status)
 
     if (reset) {
-      setLoading(true)
+      if (!silent) setLoading(true)
       setError(false)
     } else {
       setLoadingMore(true)
@@ -255,7 +315,7 @@ export default function MessagesView() {
       })
   }
 
-  const reload = () => fetchPage(true, filter)
+  const reload = (silent = false) => fetchPage(true, filter, 0, silent)
 
   useEffect(() => {
     fetchPage(true, filter)
@@ -271,17 +331,22 @@ export default function MessagesView() {
     setBusy(true)
     try {
       await http.patch(`/api/admin/messages/${id}`, patch)
-      reload()
+      reload(true)
     } finally {
       setBusy(false)
     }
   }
 
   const sendReply = async (id, replyBody) => {
+    const item = items.find((i) => i.id === id)
     setBusy(true)
     try {
       await http.post(`/api/admin/messages/${id}/reply`, { replyBody })
-      reload()
+      setSent({
+        email: item?.email || fullName(item) || 'Cliente',
+        name: item ? fullName(item) : 'Cliente',
+      })
+      reload(true)
     } finally {
       setBusy(false)
     }
@@ -293,45 +358,44 @@ export default function MessagesView() {
     setBusy(true)
     try {
       await http.del(`/api/admin/messages/${id}`)
-      reload()
+      reload(true)
     } finally {
       setBusy(false)
     }
   }
 
   return (
-    <section className="kt-view">
-      <header className="kt-view-head">
+    <section className="kt-view kt-msgs">
+      <header className="kt-view-head kt-msgs-head">
         <div>
           <p className="kt-eyebrow">BANDEJA DE ENTRADA</p>
-          <h1>Solicitudes de clientes</h1>
+          <h1>Mensajes de clientes</h1>
+          <p className="kt-view-sub">
+            Contactos que llegan desde el formulario “Hablemos” del sitio.
+          </p>
         </div>
-        <div className="kt-stats">
-          <span className="kt-stat">
-            <strong>{counts.nuevo || 0}</strong>
-            Nuevos
-          </span>
-          <span className="kt-stat">
-            <strong>{counts.contactado || 0}</strong>
-            Contactados
-          </span>
-          <span className="kt-stat">
-            <strong>{counts.cerrado || 0}</strong>
-            Cerrados
-          </span>
-        </div>
+        <button className="kt-btn kt-btn-ghost" onClick={reload}>
+          <RefreshCw size={15} />
+          Refrescar
+        </button>
       </header>
 
-      <div className="kt-tabs">
-        {FILTERS.map((f) => (
-          <button
-            key={f.key}
-            className={`kt-tab ${filter === f.key ? 'active' : ''}`}
-            onClick={() => setFilter(f.key)}
-          >
-            {f.label}
-          </button>
-        ))}
+      <div className="kt-msgs-toolbar" role="tablist" aria-label="Filtrar mensajes">
+        {FILTERS.map((f) => {
+          const count = f.key === 'todos' ? total : counts[f.key] || 0
+          return (
+            <button
+              key={f.key}
+              role="tab"
+              aria-selected={filter === f.key}
+              className={`kt-tab kt-tab-count ${filter === f.key ? 'active' : ''}`}
+              onClick={() => setFilter(f.key)}
+            >
+              <strong>{f.label}</strong>
+              <span>{count}</span>
+            </button>
+          )
+        })}
       </div>
 
       {loading ? (
@@ -346,38 +410,85 @@ export default function MessagesView() {
             Reintentar
           </button>
         </div>
-      ) : items.length === 0 ? (
-        <div className="kt-empty">
-          <Inbox size={34} />
-          <p>No hay mensajes en este filtro.</p>
-        </div>
       ) : (
-        <>
-          <div className="kt-msg-list">
-            {items.map((m) => (
-              <MessageCard
-                key={m.id}
-                m={m}
+        <div className="kt-msgs-split">
+          <aside className="kt-msgs-list" aria-label="Lista de mensajes">
+            {items.length === 0 ? (
+              <div className="kt-empty kt-empty-list">
+                <Inbox size={30} />
+                <p>No hay mensajes en este filtro.</p>
+              </div>
+            ) : (
+              <>
+                {items.map((m) => (
+                  <MessageRow
+                    key={m.id}
+                    m={m}
+                    active={m.id === selectedId}
+                    onClick={() => setSelectedId(m.id)}
+                  />
+                ))}
+                {hasMore && (
+                  <div className="kt-more">
+                    <button className="kt-btn kt-btn-ghost" onClick={loadMore} disabled={loadingMore}>
+                      {loadingMore ? <Loader2 className="kt-spin" size={15} /> : null}
+                      {loadingMore
+                        ? 'Cargando más…'
+                        : `Cargar más (${items.length} de ${total})`}
+                    </button>
+                    {moreError && <p className="kt-error kt-more-error">{moreError}</p>}
+                  </div>
+                )}
+              </>
+            )}
+          </aside>
+
+          <div className="kt-msgs-reader">
+            {selected ? (
+              <MessageReader
+                key={selected.id}
+                m={selected}
                 busy={busy}
                 onRemove={removeMessage}
-                onSave={(patch) => savePatch(m.id, patch)}
-                onSend={(replyBody) => sendReply(m.id, replyBody)}
+                onSave={(patch) => savePatch(selected.id, patch)}
+                onSend={(replyBody) => sendReply(selected.id, replyBody)}
               />
-            ))}
+            ) : (
+              <div className="kt-reader-empty">
+                <MailOpen size={34} />
+                <p>Selecciona un mensaje para leerlo y responderlo.</p>
+              </div>
+            )}
           </div>
+        </div>
+      )}
 
-          {hasMore && (
-            <div className="kt-more">
-              <button className="kt-btn kt-btn-ghost" onClick={loadMore} disabled={loadingMore}>
-                {loadingMore ? <Loader2 className="kt-spin" size={15} /> : null}
-                {loadingMore
-                  ? 'Cargando más…'
-                  : `Cargar más (${items.length} de ${total})`}
-              </button>
-              {moreError && <p className="kt-error kt-more-error">{moreError}</p>}
-            </div>
-          )}
-        </>
+      {sent && (
+        <div
+          className="kt-modal kt-sent"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Respuesta enviada"
+        >
+          <div className="kt-modal-backdrop" onClick={() => setSent(null)} />
+          <div className="kt-modal-card kt-sent-card">
+            <span className="kt-sent-badge">
+              <CheckCircle2 size={32} />
+            </span>
+            <h3>Respuesta enviada</h3>
+            <p className="kt-sent-lead">
+              Tu mensaje llegó al correo de <strong>{sent.email}</strong> con el asunto{' '}
+              “Respuesta de KARVATECH”.
+            </p>
+            <p className="kt-sent-note">
+              La respuesta quedó guardada en la conversación y el mensaje se marcó como
+              contactado.
+            </p>
+            <button className="kt-btn kt-btn-primary kt-sent-btn" onClick={() => setSent(null)}>
+              Listo
+            </button>
+          </div>
+        </div>
       )}
     </section>
   )

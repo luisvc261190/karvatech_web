@@ -3,6 +3,7 @@ import {
   ExternalLink,
   FolderKanban,
   KeyRound,
+  LayoutDashboard,
   Loader2,
   LogOut,
   MessageSquareText,
@@ -10,14 +11,22 @@ import {
 } from 'lucide-react'
 import { http, logout } from './api'
 import ChangePassword from './ChangePassword'
+import DashboardView from './Dashboard'
 import Login from './Login'
 import MessagesView from './Messages'
 import ProjectsView from './Projects'
 
+function adminInitials(user) {
+  const name = (user.name || user.username || 'A').trim()
+  const parts = name.split(/\s+/).filter((p) => /[A-Za-zÁÉÍÓÚÑáéíóúñ0-9]/.test(p))
+  const text = parts.length >= 2 ? parts[0][0] + parts[1][0] : name.slice(0, 2)
+  return text.toUpperCase()
+}
+
 export default function AdminApp() {
   const [user, setUser] = useState(null)
   const [loaded, setLoaded] = useState(false)
-  const [view, setView] = useState('mensajes')
+  const [view, setView] = useState('resumen')
   const [passOpen, setPassOpen] = useState(false)
 
   useEffect(() => {
@@ -60,11 +69,11 @@ export default function AdminApp() {
 
         <nav className="kt-nav" aria-label="Secciones del panel">
           <button
-            className={`kt-nav-btn ${view === 'mensajes' ? 'active' : ''}`}
-            onClick={() => setView('mensajes')}
+            className={`kt-nav-btn ${view === 'resumen' ? 'active' : ''}`}
+            onClick={() => setView('resumen')}
           >
-            <MessageSquareText size={17} />
-            Mensajes
+            <LayoutDashboard size={17} />
+            Resumen
           </button>
           <button
             className={`kt-nav-btn ${view === 'proyectos' ? 'active' : ''}`}
@@ -73,16 +82,23 @@ export default function AdminApp() {
             <FolderKanban size={17} />
             Proyectos
           </button>
+          <button
+            className={`kt-nav-btn ${view === 'mensajes' ? 'active' : ''}`}
+            onClick={() => setView('mensajes')}
+          >
+            <MessageSquareText size={17} />
+            Mensajes
+          </button>
         </nav>
 
         <div className="kt-side-foot">
           <div className="kt-user">
-            <span className="kt-avatar">{String(user.username || 'A').slice(0, 1).toUpperCase()}</span>
-            <span>{user.username}</span>
+            <span className="kt-avatar">{adminInitials(user)}</span>
+            <span>{user.name || user.username}</span>
           </div>
           <a className="kt-side-link" href="#/">
             <ExternalLink size={14} />
-            Ver sitio
+            Ver sitio público
           </a>
           <button className="kt-side-link" onClick={() => setPassOpen(true)}>
             <KeyRound size={14} />
@@ -100,7 +116,23 @@ export default function AdminApp() {
       </aside>
 
       <main className="kt-main">
-        {view === 'mensajes' ? <MessagesView /> : <ProjectsView />}
+        <header className="kt-topbar">
+          <span className="kt-top-avatar">{adminInitials(user)}</span>
+          <div className="kt-top-copy">
+            <strong>Administrador</strong>
+            <span>
+              {user.name || user.username} · KARVATECH
+            </span>
+          </div>
+        </header>
+
+        {view === 'resumen' ? (
+          <DashboardView user={user} onNavigate={setView} />
+        ) : view === 'mensajes' ? (
+          <MessagesView />
+        ) : (
+          <ProjectsView />
+        )}
       </main>
 
       {passOpen && (
